@@ -1,14 +1,5 @@
 from extensions import db
 
-job_list = []
-def get_last_id():
-    last_job = 1
-
-    if job_list:
-        last_job = job_list[-1].id+1
-
-    return last_job
-
 
 class Job(db.Model):
 

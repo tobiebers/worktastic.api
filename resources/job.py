@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from http import HTTPStatus
-from models.job import job_list, Job
+from models.job import Job
 
 
 class JobListResource(Resource):
@@ -44,8 +44,7 @@ class JobResource(Resource):
     def put(self, job_id):
         data = request.get_json()
 
-        job = next( (job for job in job_list
-                     if job.id is job_id ), None)
+        job = Job.get_by_id(job_id=job_id)
 
         if job is None:
             return {'message':'job not found'}, HTTPStatus.NOT_FOUND
@@ -54,16 +53,17 @@ class JobResource(Resource):
         job.description = data['description']
         job.salary = data['salary']
 
+        job.save()
+
         return job.data, HTTPStatus.OK
 
     def delete(self, job_id):
-        job = next((job for job in job_list
-                    if job.id is job_id), None)
+        job = Job.get_by_id(job_id=job_id)
 
         if job is None:
             return {'message': 'job not found'}, HTTPStatus.NOT_FOUND
 
-        job_list.remove(job)
+        job.delete()
 
         return{}, HTTPStatus.NO_CONTENT
 
@@ -71,23 +71,26 @@ class JobResource(Resource):
 class JobPublishResource(Resource):
 
     def put(self, job_id):
-        job = next( (job for job in job_list
-                     if job.id is job_id ), None)
+
+        job = Job.get_by_id(job_id=job_id)
 
         if job is None:
             return {'message':'job not found'}, HTTPStatus.NOT_FOUND
 
         job.is_published = True
+        job.save()
         return{}, HTTPStatus.OK
 
     def delete(self, job_id):
-        job = next((job for job in job_list
-                    if job.id is job_id), None)
+
+        job = Job.get_by_id(job_id=job_id)
 
         if job is None:
             return {'message': 'job not found'}, HTTPStatus.NOT_FOUND
 
         job.is_published = False
+        job.save()
+
         return {}, HTTPStatus.OK
 
 
